@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Dashboard - Student Attendance</title>
+  <style>
+    :root{
+      --bg-a: #071029;
+      --bg-b: #0f1b2b;
+      --glass: rgba(255,255,255,0.06);
+      --text: #e6eef8;
+      --muted: #a0acbd;
+      --accent: linear-gradient(135deg,#6ee7b7 0%, #60a5fa 100%);
+    }
+
+    .light-theme{
+      --bg-a: #f7fbff;
+      --bg-b: #eef6ff;
+      --glass: rgba(0,0,0,0.05);
+      --text: #0b1220;
+      --muted: #556074;
+    }
+
+    *{box-sizing:border-box;margin:0;padding:0;font-family:Inter,system-ui,Segoe UI,Roboto}
+    body,html{height:100%}
+
+    body{
+      background: linear-gradient(180deg,var(--bg-a), var(--bg-b));
+      transition:background .35s ease,color .35s ease;
+      color:var(--text);
+      padding:20px;
+    }
+
+    h1{margin-bottom:20px;text-align:center}
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+      gap:20px;
+    }
+
+    .card{
+      background:var(--glass);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      padding:20px;
+      border-radius:16px;
+      box-shadow:0 12px 40px rgba(0,0,0,0.45);
+      position:relative;
+      overflow:hidden;
+    }
+
+    .card h3{margin-bottom:12px}
+
+    /* timetable styles */
+    .class-timings{
+      overflow-x:auto;
+    }
+    table{
+      width:100%;
+      border-collapse:collapse;
+      font-size:13px;
+      min-width:750px; /* prevent squishing */
+    }
+    th,td{
+      border:1px solid rgba(255,255,255,0.1);
+      padding:6px;
+      text-align:center;
+      white-space:nowrap;
+    }
+    thead th{
+      background:var(--accent);
+      color:#fff;
+      font-weight:600;
+    }
+    tbody tr:nth-child(even){
+      background:rgba(255,255,255,0.04);
+    }
+
+    .note{
+      margin-top:8px;
+      font-size:12px;
+      color:var(--muted);
+    }
+
+    /* theme toggle */
+    .theme-toggle{
+      position:fixed;top:16px;right:16px;
+      width:38px;height:38px;
+      border-radius:10px;
+      border:none;cursor:pointer;
+      background:linear-gradient(90deg,#111,#2b2b2b);
+      color:#fff;font-size:14px;
+      display:grid;place-items:center;
+      z-index:999;
+    }
+
+    /* highlight today row */
+    .highlight-today{
+      background:rgba(96,165,250,0.25) !important;
+    }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle" id="themeToggle">🌓</button>
+  <h1>Welcome, <span id="studentName">Student</span></h1>
+
+  <div class="grid">
+    <!-- Timetable -->
+    <div class="card">
+      <h3>Master Time Table – Division A</h3>
+      <div class="class-timings">
+        <table id="timetable">
+          <thead>
+            <tr>
+              <th>Day & Time</th>
+              <th>9:00–10:00</th>
+              <th>10:00–11:00</th>
+              <th>11:00–11:15</th>
+              <th>11:15–12:15</th>
+              <th>12:15–1:15</th>
+              <th>1:15–2:00</th>
+              <th>2:00–3:00</th>
+              <th>3:00–4:00</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Monday</td><td>M-I</td><td>BEE</td><td>Short Break</td><td>A1-EM, A2-BEE, A3-PHY</td><td></td><td>Lunch</td><td>A1-MI/Lib, A2-FPL, A3-EM</td><td>DTIL / BEE</td></tr>
+            <tr><td>Tuesday</td><td>FPL</td><td>PHY</td><td>Short Break</td><td>EM</td><td>M-I</td><td>Lunch</td><td>DTIL</td><td>BEE</td></tr>
+            <tr><td>Wednesday</td><td>EM</td><td>PHY</td><td>Short Break</td><td>A1-PCS, A2-MI/Lib, A3-M-I</td><td></td><td>Lunch</td><td>M-I</td><td>EM</td></tr>
+            <tr><td>Thursday</td><td>A1-BEE, A2-PHY, A3-EM</td><td></td><td>Short Break</td><td>A1-PHY, A2-FM, A3-BEE</td><td></td><td>Lunch</td><td>DTIL</td><td>EXTRA</td></tr>
+            <tr><td>Friday</td><td>BEE</td><td>PHY</td><td>Short Break</td><td>A1-FPL, A2-PCS, A3-…</td><td></td><td>Lunch</td><td>FPL</td><td>TG</td></tr>
+            <tr><td>Saturday</td><td colspan="2">CCC-I</td><td>Short Break</td><td></td><td colspan="2">Lunch</td><td colspan="2">CCC-I</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note"><strong>Note:</strong> Batches A1 (1–22), A2 (23–44), A3 (45–65)</p>
+    </div>
+  </div>
+
+  <script>
+    // theme toggle
+    const toggle = document.getElementById('themeToggle');
+    toggle.addEventListener('click', ()=> document.body.classList.toggle('light-theme'));
+
+    // highlight today's row
+    const today = new Date().getDay(); // 0=Sun, 1=Mon...
+    const table = document.getElementById("timetable").getElementsByTagName("tbody")[0];
+    if(today >= 1 && today <= 6){ // Mon-Sat
+      table.rows[today-1].classList.add("highlight-today");
+    }
+
+    // show name from login (localStorage)
+    const studentName = localStorage.getItem("studentName") || "Student";
+    document.getElementById("studentName").textContent = studentName;
+  </script>
+</body>
+</html>
+

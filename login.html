@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Login - Student Attendance</title>
+  <style>
+    :root{
+      --bg-a: #071029;
+      --bg-b: #0f1b2b;
+      --glass: rgba(255,255,255,0.06);
+      --text: #e6eef8;
+      --muted: #a0acbd;
+      --accent: linear-gradient(135deg,#6ee7b7 0%, #60a5fa 100%);
+    }
+
+    .light-theme{
+      --bg-a: #f7fbff;
+      --bg-b: #eef6ff;
+      --glass: rgba(0,0,0,0.05);
+      --text: #0b1220;
+      --muted: #556074;
+    }
+
+    *{box-sizing:border-box;margin:0;padding:0;font-family:Inter,system-ui,Segoe UI,Roboto}
+    body,html{height:100%}
+
+    body{
+      background: linear-gradient(180deg,var(--bg-a), var(--bg-b));
+      display:flex;align-items:center;justify-content:center;
+      transition:background .35s ease,color .35s ease;
+      color:var(--text);
+    }
+
+    .card{
+      background:var(--glass);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      padding:32px 28px;
+      border-radius:18px;
+      width:100%;max-width:380px;
+      box-shadow:0 12px 40px rgba(0,0,0,0.45);
+      text-align:center;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .card::before{
+      content:"";position:absolute;inset:-40%;
+      background:linear-gradient(90deg,rgba(255,255,255,0.05),rgba(255,255,255,0.15),rgba(255,255,255,0.05));
+      transform:rotate(25deg);
+      animation: shimmer 6s linear infinite;
+    }
+
+    @keyframes shimmer{
+      from{transform:translateX(-60%) rotate(25deg)}
+      to{transform:translateX(60%) rotate(25deg)}
+    }
+
+    h1{margin-bottom:20px;font-size:22px}
+    .input-group{margin-bottom:16px;text-align:left}
+    label{display:block;margin-bottom:6px;font-size:14px;color:var(--muted)}
+    input{
+      width:100%;padding:12px 14px;
+      border-radius:10px;
+      border:1px solid rgba(255,255,255,0.1);
+      background:rgba(0,0,0,0.1);
+      color:var(--text);
+      outline:none;font-size:14px;
+    }
+    input:focus{border-color:#60a5fa}
+
+    .btn{
+      margin-top:16px;
+      width:100%;padding:12px;
+      border:none;cursor:pointer;
+      border-radius:10px;
+      background:var(--accent);
+      font-weight:600;color:#fff;font-size:15px;
+      box-shadow:0 6px 20px rgba(0,0,0,0.35);
+      transition:transform .15s;
+    }
+    .btn:hover{transform:translateY(-2px)}
+
+    .links{margin-top:14px;font-size:13px;color:var(--muted)}
+    .links a{color:#60a5fa;text-decoration:none;margin:0 6px}
+    .links a:hover{text-decoration:underline}
+
+    .theme-toggle{
+      position:absolute;top:12px;right:12px;
+      width:38px;height:38px;
+      border-radius:10px;
+      border:none;cursor:pointer;
+      background:linear-gradient(90deg,#111,#2b2b2b);
+      color:#fff;font-size:14px;
+      display:grid;place-items:center;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <button class="theme-toggle" id="themeToggle">🌓</button>
+    <h1>Student Login</h1>
+    <form onsubmit="return login(event)">
+      <div class="input-group">
+        <label for="email">Email / Username</label>
+        <input type="text" id="email" required placeholder="Enter your email">
+      </div>
+      <div class="input-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" required placeholder="Enter your password">
+      </div>
+      <button type="submit" class="btn">Login</button>
+    </form>
+    <div class="links">
+      <a href="#">Forgot Password?</a> | 
+      <a href="#">Sign Up</a>
+    </div>
+  </div>
+
+  <script>
+    const toggle = document.getElementById('themeToggle');
+    toggle.addEventListener('click', ()=> document.body.classList.toggle('light-theme'));
+
+    function login(e){
+      e.preventDefault();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+
+      if(email === "krushnasaruk55@gmail.com" && password === "12345"){
+        window.location.href = "dashboard.html"; 
+      } else {
+        alert("Invalid credentials! Please try again.");
+      }
+      return false;
+    }
+  </script>
+</body>
+</html>
