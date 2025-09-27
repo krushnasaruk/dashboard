@@ -371,16 +371,10 @@
 
           <!-- class timings -->
           <div class="class-timings">
-            <h3>Today's Class Timings</h3>
-            <div class="schedule">
-              <div class="slot"><div class="time">09:00 - 10:00</div><div class="sub">Mathematics</div></div>
-              <div class="slot"><div class="time">10:15 - 11:15</div><div class="sub">Physics</div></div>
-              <div class="slot"><div class="time">11:30 - 12:30</div><div class="sub">Chemistry</div></div>
-              <div class="slot"><div class="time">14:00 - 15:00</div><div class="sub">Computer Science</div></div>
-            </div>
-          </div>
-        </div>
-
+                        <h3 id="todayScheduleDay">Today's Class Timings</h3>
+                        <div class="schedule" id="scheduleContainer">
+                          </div>
+          </div>
         <!-- right column -->
         <aside>
           <div class="card live-gradient" style="margin-bottom:16px">
@@ -415,6 +409,133 @@
 
   <script>
     // small helpers
+    // =======================================================
+// === START OF DYNAMIC TIMETABLE CODE ===
+// =======================================================
+
+// --- 1. TIMETABLE DATA MODEL (Division A) ---
+const timetableData = {
+    // Note: In JavaScript, Sunday is 0, Monday is 1, etc.
+    1: { // MONDAY (Division A)
+        day: "Monday",
+        schedule: [
+            { time: "9:00 - 10:00 AM", subject: "M-I" },
+            { time:"10:00-11:00 AM", subject: "BEE"},
+            { time:"11:00-11:15 AM", subject:"LUNCH", isBreak: true },
+            { time: "11:15 - 1:15 PM", subject: "A1-M-I / A2-BEE / A3-PHY" },
+            { time: "01:15 - 02:00 PM", subject: "LUNCH", isBreak: true },
+            { time: "02:00 - 04:00 PM", subject: "A1-M-I / A2-FPL / A3-PCS" },
+        ]
+    },
+    2: { // TUESDAY (Division A)
+        day: "Tuesday",
+        schedule: [
+            { time: "9:00-10:00 AM", subject: "FPL" },
+            { time: "10:00 - 11:00 AM", subject: "EM" },
+            { time:"11:00-11:15 AM", subject:"LUNCH", isBreak: true },
+            { time: "11:15 - 12:15 PM", subject: "PHY" },
+            { time: "12:15 - 01:15 PM", subject: "M-I" },
+            { time: "01:15 - 02:00 PM", subject: "Long Break", isBreak: true },
+            { time: "02:00 - 03:00 PM", subject: "DTIL" },
+            { time: "03:00 - 04:00 PM", subject: "BEE" },
+        ]
+    },
+    3: { // WEDNESDAY (Division A)
+        day: "Wednesday",
+        schedule: [
+            { time: "09:00 - 10:00 AM", subject: "EM" },
+            { time: "10:00 - 11:00 AM", subject: "PHY" },
+            { time:"11:00-11:15 AM", subject:"LUNCH", isBreak: true },
+            { time: "11:15 - 01:15 PM", subject: "A1-PCS / A2-M-I / A3-FPL" },
+            { time: "01:15 - 02:00 PM", subject: "Long Break", isBreak: true },
+            { time: "12:15 - 01:15 PM", subject: "M-I" },
+            { time: "10:00 - 11:00 PM", subject: "EM" },
+           
+        ]
+    },
+    4: { // THURSDAY (Division A)
+        day: "Thursday",
+        schedule: [
+            { time: "09:00 - 11:00 AM", subject: "A1-BEE / A2-PHY / A3-EM" },
+            { time:"11:00-11:15 AM", subject:"LUNCH", isBreak: true },
+            { time: "11:15 - 01:15 PM", subject: "A1-PHY / A2-EM / A3-BEE" },
+            { time: "01:15 - 02:00 PM", subject: "Short Break", isBreak: true },
+            { time: "02:00 - 03:00 PM", subject: "DTIL" },
+            { time: "03:00 - 04:00 PM", subject: "Extra" },
+        ]
+    },
+    5: { // FRIDAY (Division A)
+        day: "Friday",
+        schedule: [
+            { time: "9:00-10:00 AM", subject: "BEE" },
+            { time: "10:00 - 11:00 AM", subject: "PHY" },
+            { time: "11:00 - 11:15 AM", subject: "Short Break", isBreak: true },
+            { time: "11:15 - 01:15 PM", subject: "A1-FPL / A2-PCS / A3-M-I" },
+            { time: "01:30 - 02:00 PM", subject: "LUNCH", isBreak: true },
+            { time: "02:00 - 03:00 PM", subject: "FPL" },
+            { time: "03:00 - 04:00 PM", subject: "TG" },
+        ]
+    },
+    6: { // SATURDAY (Division A)
+        day: "Saturday",
+        schedule: [
+            { time: "09:00 - 04:00 PM", subject: "CCC-I" },
+        ]
+    },
+    0: { // SUNDAY
+        day: "Sunday",
+        schedule: [
+            { time: "All Day", subject: "Weekend Holiday" }
+        ]
+    }
+};
+
+// --- 2. DYNAMIC RENDERING FUNCTION ---
+function renderDailyTimetable() {
+    const today = new Date();
+    const dayOfWeek = today.getDay(); // 0 (Sunday) to 6 (Saturday)
+    
+    // Get the schedule for the current day
+    const dailyData = timetableData[dayOfWeek];
+    
+    // Get the HTML elements using the IDs
+    const heading = document.getElementById('todayScheduleDay');
+    const container = document.getElementById('scheduleContainer');
+    
+    // Safety check: if elements aren't found, stop here
+    if (!heading || !container) {
+        console.error("Timetable HTML elements (h3 or schedule div) not found.");
+        return;
+    }
+
+    // Update the heading text
+    heading.innerText = `${dailyData.day}'s Class Timings (Division A)`;
+    
+    // Clear any existing content
+    container.innerHTML = '';
+
+    // Generate the HTML for each class slot
+    dailyData.schedule.forEach(slot => {
+        // Apply different styling for breaks using the 'var(--glass)' CSS variable
+        const breakStyle = slot.isBreak ? 'style="background:var(--glass); color:var(--muted);"' : '';
+        
+        const slotHTML = `
+            <div class="slot" ${breakStyle}>
+                <div class="time">${slot.time}</div>
+                <div class="sub">${slot.subject}</div>
+            </div>
+        `;
+        // Add the new slot HTML to the container
+        container.innerHTML += slotHTML;
+    });
+}
+
+// Call the function once the page is fully loaded
+document.addEventListener('DOMContentLoaded', renderDailyTimetable);
+
+// =======================================================
+// === END OF DYNAMIC TIMETABLE CODE ===
+// =======================================================
     document.getElementById('year').innerText = new Date().getFullYear();
 
     // mobile sidebar toggle
@@ -471,4 +592,5 @@
   </script>
 </body>
 </html> 
+
 
