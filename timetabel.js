@@ -1,3 +1,81 @@
+document.addEventListener('DOMContentLoaded', () => {
+
+    // --- QR SCANNER LOGIC ---
+
+    const scanButton = document.getElementById('scan-qr-btn');
+    const qrModal = document.getElementById('qr-scanner-modal');
+    const closeModalButton = document.getElementById('close-scanner-btn');
+    
+    // This variable will hold our scanner instance
+    let scanner; 
+
+    // What to do when a QR code is successfully scanned
+    const onScanSuccess = (decodedText, decodedResult) => {
+        console.log(`QR Code Scanned: ${decodedText}`);
+        
+        // Stop the camera
+        scanner.stop().then(() => {
+            // Hide the modal
+            qrModal.style.display = 'none';
+            // Show a success message
+            alert(`Attendance code scanned: ${decodedText}`);
+            
+            // **IMPORTANT**: Here you would send the `decodedText` to your backend
+            // sendAttendanceCodeToBackend(decodedText);
+            
+        }).catch(err => {
+            console.error("Error stopping the scanner", err);
+        });
+    };
+
+    // Optional: what to do if scanning fails
+    const onScanFailure = (error) => {
+        // You can ignore this or log it for debugging
+        // console.warn(`QR scan error: ${error}`);
+    };
+
+    // --- EVENT LISTENERS ---
+
+    // 1. When you click the "Scan" button
+    scanButton.addEventListener('click', () => {
+        qrModal.style.display = 'flex'; // Show the modal
+        
+        // Create a new scanner instance
+        scanner = new Html5Qrcode("qr-reader");
+        
+        // Start the scanner
+        scanner.start(
+            { facingMode: "environment" }, // Use the back camera
+            {
+                fps: 10, // Frames per second
+                qrbox: { width: 250, height: 250 } // Size of the scanning box
+            },
+            onScanSuccess,
+            onScanFailure
+        ).catch(err => {
+            console.error("Unable to start scanning.", err);
+            alert("Error: Could not start camera. Please grant permission.");
+        });
+    });
+
+    // 2. When you click the "Cancel" button
+    closeModalButton.addEventListener('click', () => {
+        if (scanner) {
+            scanner.stop().then(() => {
+                console.log("Scanner stopped.");
+            }).catch(err => {
+                console.error("Error stopping the scanner", err);
+            });
+        }
+        qrModal.style.display = 'none'; // Hide the modal
+    });
+
+    // --- END OF QR SCANNER LOGIC ---
+
+    // The rest of your existing timetabel.js code can go here...
+    // For example, the renderDailyTimetable() function and its related code.
+
+});
 // --- 1. TIMETABLE DATA MODEL (Multiple Divisions) ---
 const timetableData = {
     // Note: 0 is Sunday, 1 is Monday, ..., 6 is Saturday
