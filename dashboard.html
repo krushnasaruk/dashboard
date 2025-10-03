@@ -4,6 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Student Attendance Dashboard</title>
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
   <style>
     :root{
       --sidebar-w: 240px;
@@ -296,6 +297,16 @@
       </div>
 
       <div class="topbar-right" style="display:flex;align-items:center;gap:12px">
+       <button class="icon-btn" id="notifBtn" title="Notifications" aria-label="Notifications">
+       <svg width="18" height="18" viewBox="0 0 24 24"><path d="M12 22a2 2 0 002-2H10a2 2 0 002 2zM18 16v-5a6 6 0 00-12 0v5l-2 2h16l-2-2z" fill="currentColor"/></svg>
+    </button>
+
+    <button class="icon-btn" id="scan-qr-btn" title="Scan Attendance QR" aria-label="Scan QR Code">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3 11h8V3H3v8zm2-6h4v4H5V5zM3 21h8v-8H3v8zm2-6h4v4H5v-4zM13 3v8h8V3h-8zm6 6h-4V5h4v4zM13 13h2v2h-2zM15 15h2v2h-2zM13 17h2v2h-2zM17 17h2v2h-2zM19 19h2v2h-2zM15 19h2v2h-2zM17 13h2v2h-2zM19 15h2v2h-2z"/></svg>
+    </button>
+
+    <button class="theme-toggle" id="themeToggle" title="Toggle theme" aria-label="Toggle theme">🌓</button>
+    </div>
         <div class="search" title="Search">
           <svg width="16" height="16" viewBox="0 0 24 24" style="opacity:.8"><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
           <input id="searchInput" placeholder="Search sections, students..." aria-label="Search" />
@@ -328,11 +339,17 @@
     <!-- content wrapper-->
     <main class="content-wrapper">
       <div class="greeting">
-        <div>
-          <h1>Attendance Dashboard</h1>
-          <p class="muted">Overview of your attendance, tasks and today's classes</p>
-        </div>
-      </div>
+        <div class="greeting">
+  <div>
+    <h1>Attendance Dashboard</h1>
+    <p class="muted">Overview of your attendance, tasks and today's classes</p>
+    <select id="divisionSelector" style="padding: 8px 12px; border-radius: 6px; background: var(--glass); border: 1px solid var(--surface); color: var(--text); margin-top: 10px; font-size: 14px;">
+      <option value="A">Division A</option>
+      <option value="B">Division B</option>
+      <option value="C">Division C</option>
+    </select>
+    </div>
+</div>
 
       <!-- Two-column layout -->
       <div class="grid-2col">
@@ -371,16 +388,10 @@
 
           <!-- class timings -->
           <div class="class-timings">
-            <h3>Today's Class Timings</h3>
-            <div class="schedule">
-              <div class="slot"><div class="time">09:00 - 10:00</div><div class="sub">Mathematics</div></div>
-              <div class="slot"><div class="time">10:15 - 11:15</div><div class="sub">Physics</div></div>
-              <div class="slot"><div class="time">11:30 - 12:30</div><div class="sub">Chemistry</div></div>
-              <div class="slot"><div class="time">14:00 - 15:00</div><div class="sub">Computer Science</div></div>
-            </div>
-          </div>
-        </div>
-
+                        <h3 id="todayScheduleDay">Today's Class Timings</h3>
+                        <div class="schedule" id="scheduleContainer">
+                          </div>
+          </div>
         <!-- right column -->
         <aside>
           <div class="card live-gradient" style="margin-bottom:16px">
@@ -414,61 +425,13 @@
   </div>
 
   <script>
-    // small helpers
-    document.getElementById('year').innerText = new Date().getFullYear();
-
-    // mobile sidebar toggle
-    const hamburger = document.getElementById('hamburger');
-    const sidebar = document.getElementById('sidebar');
-    let mobileOpen = false;
-    hamburger?.addEventListener('click', ()=>{
-      mobileOpen = !mobileOpen;
-      if(window.innerWidth <= 880){
-        sidebar.classList.toggle('mobile-open', mobileOpen);
-        // add backdrop
-        if(mobileOpen){
-          const back = document.createElement('div');
-          back.id = 'mobile-backdrop';
-          back.style = 'position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:90';
-          back.addEventListener('click', ()=>{ mobileOpen=false; sidebar.classList.remove('mobile-open'); back.remove();});
-          document.body.appendChild(back);
-        } else {
-          const existing = document.getElementById('mobile-backdrop'); if(existing) existing.remove();
-        }
-      }
-    });
-
-    // profile dropdown
-    const avatarBtn = document.getElementById('avatarBtn');
-    const profileMenu = document.getElementById('profileMenu');
-    avatarBtn?.addEventListener('click', (e)=>{
-      profileMenu.style.display = profileMenu.style.display === 'block' ? 'none' : 'block';
-    });
-    window.addEventListener('click', (e)=>{
-      if(!avatarBtn.contains(e.target) && !profileMenu.contains(e.target)){
-        profileMenu.style.display = 'none';
-      }
-    });
-
-    // theme toggle
-    const themeBtn = document.getElementById('themeToggle');
-    themeBtn?.addEventListener('click', ()=>{
-      document.body.classList.toggle('light-theme');
-    });
-
-    // nav items selection (client-side)
-    document.querySelectorAll('.nav-item').forEach(item=>{
-      item.addEventListener('click', ()=>{
-        document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-        item.classList.add('active');
-        // optionally you can load different sections here
-      });
-    });
-
-    // small: clicking icons can show simple toasts (example)
-    document.getElementById('notifBtn').addEventListener('click', ()=> alert('No new notifications'));
-    document.getElementById('calendarBtn').addEventListener('click', ()=> alert('Open calendar (placeholder)'));
+  
   </script>
+  <script src="timetabel.js" defer></script>
+  </main>
 </body>
 </html> 
+
+
+
 
